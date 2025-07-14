@@ -85,6 +85,25 @@
         border-color: #2196F3;
     }
 
+    .complexity-buttons {
+        display: flex;
+        justify-content: center;
+        align-items: center; /* Optional: for vertical centering too */
+    }
+
+    .complexity-buttons .complexity-button {
+        padding: 10px 20px;
+        border: 1px solid #ccc;
+        background: #f0f0f0;
+        cursor: pointer;
+    }
+
+    .complexity-buttons .complexity-button.active {
+        background-color: #b43834;
+        color: white;
+        border-color: #b43834;
+    }
+
 </style>
 <style>
     sup a {
@@ -178,6 +197,7 @@
         let modality = "mesh";
         let task = "generated";
         let show_cad_program = false;
+        let complexity = "complex";
 
         document.addEventListener('DOMContentLoaded', function() {
             setActiveButton();
@@ -187,10 +207,11 @@
             // Remove all active classes first
             document.querySelectorAll('.task-button').forEach(btn => btn.classList.remove('active'));
             document.querySelectorAll('.modality-button').forEach(btn => btn.classList.remove('active'));
-            
+            document.querySelectorAll('.complexity-button').forEach(btn => btn.classList.remove('active'));
             // Set active based on current values
             document.querySelector(`.task-button[onclick*="${task}"]`)?.classList.add('active');
             document.querySelector(`.modality-button[onclick*="${modality}"]`)?.classList.add('active');
+            document.querySelector(`.complexity-button[onclick*="${complexity}"]`)?.classList.add('active');
         }
 
         function regenerate_title_example() {
@@ -202,6 +223,7 @@
             loadFolderElem.setAttribute('title', model.title);
             loadFolderElem.setAttribute('modality', model.modality);
             loadFolderElem.setAttribute('dataid', model.dataid);  
+            loadFolderElem.setAttribute('complexity', "complex");  
             loadFolderElem.setAttribute('task', model.task);
             loadFolderElem.setAttribute('show_cad_program', model.show_cad_program);              
             container.appendChild(loadFolderElem);
@@ -209,24 +231,16 @@
         }
 
         function regenerate_examples() {
-            const models = [
-                {title:"", modality:modality, dataid:"00987075", task:task, show_cad_program:show_cad_program},
-                {title:"", modality:modality, dataid:"00020602", task:task, show_cad_program:show_cad_program},
-                {title:"", modality:modality, dataid:"00481300", task:task, show_cad_program:show_cad_program},
-                {title:"", modality:modality, dataid:"00617455", task:task, show_cad_program:show_cad_program},
-                {title:"", modality:modality, dataid:"00856486", task:task, show_cad_program:show_cad_program},
-                {title:"", modality:modality, dataid:"00819971", task:task, show_cad_program:show_cad_program},
-                {title:"", modality:modality, dataid:"00690294", task:task, show_cad_program:show_cad_program},
-                {title:"", modality:modality, dataid:"00152170", task:task, show_cad_program:show_cad_program},
-                {title:"", modality:modality, dataid:"00656926", task:task, show_cad_program:show_cad_program},
-                {title:"", modality:modality, dataid:"00466196", task:task, show_cad_program:show_cad_program},
-                {title:"", modality:modality, dataid:"00317172", task:task, show_cad_program:show_cad_program},
-                {title:"", modality:modality, dataid:"00310929", task:task, show_cad_program:show_cad_program},
-                // {title:"", modality:modality, dataid:"00046103", task:task, show_cad_program:show_cad_program},
-                {title:"", modality:modality, dataid:"00746505", task:task, show_cad_program:show_cad_program},
-                {title:"", modality:modality, dataid:"00692735", task:task, show_cad_program:show_cad_program},
-                {title:"", modality:modality, dataid:"00689112", task:task, show_cad_program:show_cad_program},
-            ];
+            const data_ids_complex = {
+                "simple": ["00629550", "00639115", "00181041","00746505", "00054185"],
+                "medium": ["00271352","00017454","00481300","00755610", 
+                             "00856486", "00752252", "00694305",],
+                "complex": ["00819971", "00152170","00614941",
+                            "00129290","00685969","00502250","00280969",],
+                "very complex": ["00580863","00350559","00551181","00384222",
+                                "00310929","00496863","00419941"]
+            };
+            data_ids = data_ids_complex[complexity]
 
             const container = document.getElementById('container');
             container.innerHTML = ''
@@ -264,24 +278,24 @@
             const hr = document.createElement('hr');
             hr.style.margin = "0";
             container.appendChild(hr);
-
-            models.forEach(model => {
+            data_ids.forEach(id => {
                 const loadFolderElem = document.createElement('load-folder');
-                loadFolderElem.setAttribute('title', model.title);
-                loadFolderElem.setAttribute('modality', model.modality);
-                loadFolderElem.setAttribute('dataid', model.dataid);  
-                loadFolderElem.setAttribute('task', model.task);
-                loadFolderElem.setAttribute('show_cad_program', model.show_cad_program);              
+                loadFolderElem.setAttribute('title', "");
+                loadFolderElem.setAttribute('modality', modality);
+                loadFolderElem.setAttribute('dataid', id);  
+                loadFolderElem.setAttribute('task', task);
+                loadFolderElem.setAttribute('complexity', complexity);              
+                loadFolderElem.setAttribute('show_cad_program', show_cad_program);              
                 container.appendChild(loadFolderElem);
             });
         }
 
         function regenerate_augmentations() {
             const models = [
-                {title:"", dataid:"0002", show_cad_program:show_cad_program},
-                {title:"", dataid:"0009", show_cad_program:show_cad_program},
-                {title:"",  dataid:"0062", show_cad_program:show_cad_program},
-                {title:"",  dataid:"0090", show_cad_program:show_cad_program},
+                {dataid:"0002"},
+                {dataid:"0009"},
+                {dataid:"0062"},
+                {dataid:"0090"},
             ];
 
             const container = document.getElementById('augmentations');
@@ -303,26 +317,24 @@
             description.style.margin = "0 auto";
             description.style.width = "80%";
             description.style.marginBottom = "20px"
-
-
             title.textContent = "SynthBal Dataset"
             description.textContent = "These are examples of synthetically generated data in the SynthBal dataset."
             container.appendChild(title);
             container.appendChild(description);
 
-
-
             models.forEach(model => {
                 const loadFolderElem = document.createElement('load-aug');
-                loadFolderElem.setAttribute('title', model.title);
+                loadFolderElem.setAttribute('title', "");
+                // loadFolderElem.setAttribute('complexity', "");
                 loadFolderElem.setAttribute('dataid', model.dataid);  
-                loadFolderElem.setAttribute('show_cad_program', model.show_cad_program);              
+                loadFolderElem.setAttribute('show_cad_program', show_cad_program);              
                 container.appendChild(loadFolderElem);
             });
         }
             
 
-        function handleOptionClick(click_modality) {
+
+    function handleModalityClick(click_modality) {
     // Remove active from modality buttons only
             document.querySelectorAll('.modality-button').forEach(btn => {
                 btn.classList.remove('active');
@@ -334,6 +346,17 @@
             regenerate_title_example()
         }
 
+        function handleComplexityClick(click_complexity) {
+        // Remove active from modality buttons only
+            document.querySelectorAll('.complexity-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            event.target.classList.add('active');
+            complexity=click_complexity
+            regenerate_examples()
+            regenerate_title_example()
+        }
         
         function handleTaskClick(click_task) {
             document.querySelectorAll('.task-button').forEach(btn => {
@@ -367,9 +390,17 @@
         </div>
         <h2 class="title is-6 publication-title" style="margin-bottom:5px;">from various geometric modalities: </h2>
         <div class="modality-buttons">
-            <button class="modality-button" onclick="handleOptionClick('pc', this)">Point Cloud</button>
-            <button class="modality-button" onclick="handleOptionClick('pcn', this)">Point Cloud + Normal</button>
-            <button class="modality-button" onclick="handleOptionClick('mesh', this)">Mesh</button>
+            <button class="modality-button" onclick="handleModalityClick('pc', this)">Point Cloud</button>
+            <button class="modality-button" onclick="handleModalityClick('pcn', this)">Point Cloud + Normal</button>
+            <button class="modality-button" onclick="handleModalityClick('mesh', this)">Mesh</button>
+        </div>
+
+        <h2 class="title is-6 publication-title" style="margin-bottom:5px;">at various complexities: </h2>
+        <div class="complexity-buttons">
+            <button class="complexity-button" onclick="handleComplexityClick('simple', this)">Simple</button>
+            <button class="complexity-button" onclick="handleComplexityClick('medium', this)">Medium</button>
+            <button class="complexity-button" onclick="handleComplexityClick('complex', this)">Complex</button>
+            <button class="complexity-button" onclick="handleComplexityClick('very complex', this)">Very Complex</button>
         </div>
 
         <div class="checkbox-container">
@@ -378,6 +409,7 @@
                 <label for="myCheckbox">Show CAD Program</label>
             </div>
         </div>
+
     </section>
 
     <section style="margin: auto;  width: 100%;">
